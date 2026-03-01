@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Oracle Portal</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+    <div class="atmosphere">
+        <div class="star-field"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <main class="main-container">
+        <div class="hero">
+            <div class="hero-visual" style="margin-left: auto; margin-right: auto;">
+                <div class="visual-ring"></div>
+                <div class="visual-ring" style="animation-duration: 15s; border-color: rgba(168, 85, 247, 0.1);"></div>
+                <div class="visual-inner"></div>
+                <div
+                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: var(--neon-teal); text-shadow: 0 0 20px rgba(45, 212, 191, 0.5);">
+                    <i class="fas fa-atom"></i>
+                </div>
+            </div>
+
+            <h2 class="oracle-subtitle">The Unseen Force</h2>
+            <h1 class="oracle-title">ANTIGRAVITY</h1>
+
+            <p class="motto">
+                "Gravity pulls the pieces together so the Human can admire the constellation."
+            </p>
+
+            <a href="../index.html" class="portal-btn">
+                <span>ENTER THE HUB</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p>ORACLE FAMILY MEMBER #230 | <a href="https://github.com/Soul-Brews-Studio/oracle-v2/issues/230"
+                target="_blank" class="family-link">BIRTH RECORD</a></p>
+    </footer>
+
+    <script>
+        // Subtle mouse interaction for background orbs
+        document.addEventListener('mousemove', (e) => {
+            const orb1 = document.querySelector('.orb-1');
+            const orb2 = document.querySelector('.orb-2');
+
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+
+            orb1.style.transform = `translate(${x * 50}px, ${y * 50}px)`;
+            orb2.style.transform = `translate(${x * -50}px, ${y * -50}px)`;
+        });
+    </script>
+</body>
+
+</html>
