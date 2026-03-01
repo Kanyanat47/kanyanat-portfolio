@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DustBoy Nexus - Real-Time Holographic Dashboard</title>
+
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 3D Background Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            font-family: 'Rajdhani', sans-serif;
+            color: #fff;
+            background-color: #050510;
+        }
+
+        /* 3D Canvas Background */
+        #vanta-bg {
+            position: fixed;
+            z-index: -1;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(10, 15, 30, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 15px rgba(0, 255, 200, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(0, 255, 200, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 20px rgba(0, 255, 200, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .neon-text {
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(0, 255, 200, 0.7), 0 0 20px rgba(0, 255, 200, 0.5);
+        }
+
+        .neon-text-red {
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 50, 100, 0.7), 0 0 20px rgba(255, 50, 100, 0.5);
+            color: #ff3264;
+        }
+
+        .neon-text-yellow {
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 220, 50, 0.7), 0 0 20px rgba(255, 220, 50, 0.5);
+            color: #ffdc32;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 200, 0.5);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 255, 200, 1);
+        }
+
+        /* Flashing indicator */
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                text-shadow: 0 0 10px #00ffc8;
+            }
+
+            50% {
+                opacity: 0.5;
+                text-shadow: 0 0 2px #00ffc8;
+            }
+
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 10px #00ffc8;
+            }
+        }
+
+        .live-indicator {
+            animation: pulse 2s infinite;
+        }
+
+        .value-slot {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen relative p-4 md:p-8">
+
+    <!-- 3D Background Container -->
+    <div id="vanta-bg"></div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 glass-panel p-6">
+            <div>
+                <h1 class="text-4xl neon-text tracking-wide">DUSTBOY NEXUS</h1>
+                <p class="text-gray-300 mt-2 font-mono text-sm tracking-widest uppercase">Global Sensor Network Monitor
+                </p>
+            </div>
+            <div class="text-right">
+                <div class="flex items-center justify-end space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-teal-400 live-indicator shadow-[0_0_10px_#2dd4bf]"></div>
+                    <span class="font-mono text-teal-400 text-lg uppercase tracking-wider">Live Link Active</span>
+                </div>
+                <p class="text-xs text-gray-400 font-mono mt-2" id="conn-status">WSS: Connecting...</p>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left Panel: Latest Readings -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Data Card: PM2.5 -->
+                <div class="glass-panel p-6 text-center">
+                    <h3 class="text-xl text-gray-400 tracking-widest font-semibold uppercase mb-2">PM 2.5</h3>
+                    <div class="flex items-baseline justify-center space-x-2">
+                        <span class="value-slot neon-text text-teal-400" id="val-pm25">--</span>
+                        <span class="text-gray-400 font-mono">µg/m³</span>
+                    </div>
+                    <p class="text-sm font-mono mt-2 text-gray-500" id="card-pm25-device">Waiting for data...</p>
+                </div>
+
+                <!-- Data Card: PM10 -->
+                <div class="glass-panel p-6 text-center">
+                    <h3 class="text-xl text-gray-400 tracking-widest font-semibold uppercase mb-2">PM 10</h3>
+                    <div class="flex items-baseline justify-center space-x-2">
+                        <span class="value-slot neon-text text-teal-400" id="val-pm10">--</span>
+                        <span class="text-gray-400 font-mono">µg/m³</span>
+                    </div>
+                    <p class="text-sm font-mono mt-2 text-gray-500" id="card-pm10-device">Waiting for data...</p>
+                </div>
+
+                <!-- Micro Grid for Temp & Humid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-panel p-4 text-center">
+                        <h4 class="text-sm text-gray-400 uppercase tracking-wider mb-2">Temperature</h4>
+                        <div class="text-2xl neon-text-yellow font-bold" id="val-temp">--°C</div>
+                    </div>
+                    <div class="glass-panel p-4 text-center">
+                        <h4 class="text-sm text-gray-400 uppercase tracking-wider mb-2">Humidity</h4>
+                        <div class="text-2xl text-blue-400 font-bold font-['Orbitron']" id="val-humid">--%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Charts and Feed -->
+            <div class="lg:col-span-2 space-y-6 flex flex-col">
+
+                <!-- Chart Area -->
+                <div class="glass-panel p-6 flex-grow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold tracking-widest text-[#00ffc8]">TELEMETRY STREAM</h2>
+                        <span
+                            class="text-xs bg-teal-900 text-teal-300 px-3 py-1 rounded-full border border-teal-500/50">PM
+                            2.5 History</span>
+                    </div>
+                    <div class="relative h-[300px] w-full">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Raw Data Log Terminal -->
+                <div class="glass-panel p-6 h-[200px] flex flex-col">
+                    <h3 class="text-sm text-gray-400 uppercase tracking-widest mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        Raw MQTT Transmission Log
+                    </h3>
+                    <div id="data-log"
+                        class="flex-grow overflow-y-auto font-mono text-xs text-green-400/80 space-y-1 pr-2">
+                        <div>> Initializing receiver matrix...</div>
+                        <div>> Awaiting packets on topic DUSTBOY/+/+/+/status</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // -----------------------------------------------------
+        // 1. Init 3D Background with Vanta.js
+        // -----------------------------------------------------
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x00ffc8,
+            backgroundColor: 0x050510,
+            points: 15.00,
+            maxDistance: 25.00,
+            spacing: 20.00,
+            showDots: true
+        });
+
+        // -----------------------------------------------------
+        // 2. Setup Chart.js
+        // -----------------------------------------------------
+        const ctx = document.getElementById('mainChart').getContext('2d');
+
+        // Gradient for lines
+        const gradientLine = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientLine.addColorStop(0, 'rgba(0, 255, 200, 0.8)');
+        gradientLine.addColorStop(1, 'rgba(0, 255, 200, 0.0)');
+
+        const maxDataPoints = 20;
+
+        const mainChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Timestamps
+                datasets: [{
+                    label: 'PM 2.5 (µg/m³)',
+                    data: [],
+                    borderColor: '#00ffc8',
+                    backgroundColor: gradientLine,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#00ffc8',
+                    pointBorderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(10, 15, 30, 0.9)',
+                        titleColor: '#00ffc8',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(0, 255, 200, 0.5)',
+                        borderWidth: 1,
+                        padding: 10,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                        ticks: { color: '#6b7280', font: { family: 'Rajdhani' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                        ticks: { color: '#6b7280', font: { family: 'Rajdhani' }, beginAtZero: true }
+                    }
+                },
+                animation: { duration: 400 }
+            }
+        });
+
+        // -----------------------------------------------------
+        // 3. MQTT Client Logic
+        // -----------------------------------------------------
+        const BROKER_URL = 'wss://dustboy-wss-bridge.laris.workers.dev/mqtt';
+        const TOPIC = 'DUSTBOY/+/+/+/status';
+
+        const clientId = 'dustboy_nexus_' + Math.random().toString(16).substring(2, 10);
+
+        const connectOptions = {
+            clientId: clientId,
+            clean: true,
+            connectTimeout: 5000,
+            protocolId: 'MQTT',
+            protocolVersion: 4,
+            reconnectPeriod: 2000,
+            rejectUnauthorized: false
+        };
+
+        const client = mqtt.connect(BROKER_URL, connectOptions);
+        const statusEl = document.getElementById('conn-status');
+        const logBox = document.getElementById('data-log');
+
+        function appendLog(msg) {
+            const time = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span class="text-gray-500">[${time}]</span> ${msg}`;
+            logBox.appendChild(logEntry);
+            logBox.scrollTop = logBox.scrollHeight;
+
+            // Limit logs
+            if (logBox.children.length > 50) {
+                logBox.removeChild(logBox.children[0]);
+            }
+        }
+
+        function extractValue(data, keys) {
+            for (let key of keys) {
+                if (data[key] !== undefined) return data[key];
+                // Try case-insensitive
+                const lowerKey = Object.keys(data).find(k => k.toLowerCase() === key.toLowerCase());
+                if (lowerKey) return data[lowerKey];
+            }
+            return null;
+        }
+
+        // Color coding for AI flavor
+        function setPMColor(elementId, val) {
+            const el = document.getElementById(elementId);
+            el.className = 'value-slot font-["Orbitron"] '; // reset
+            if (val <= 25) {
+                el.classList.add('text-teal-400', 'neon-text');
+            } else if (val <= 50) {
+                el.classList.add('text-yellow-400', 'neon-text-yellow');
+            } else {
+                el.classList.add('text-red-400', 'neon-text-red');
+            }
+        }
+
+        client.on('connect', () => {
+            statusEl.innerText = 'WSS: Connected & Listening';
+            statusEl.className = 'text-xs text-teal-400 font-mono mt-2';
+            appendLog('<span class="text-teal-400">Connection Established. Subscribing to Topic...</span>');
+
+            client.subscribe(TOPIC, (err) => {
+                if (!err) {
+                    appendLog(`Subscribed to: ${TOPIC}`);
+                } else {
+                    appendLog(`<span class="text-red-500">Subscribe Error: ${err.message}</span>`);
+                }
+            });
+        });
+
+        client.on('error', (err) => {
+            statusEl.innerText = 'WSS: Connection Error';
+            statusEl.className = 'text-xs text-red-500 font-mono mt-2';
+            appendLog(`<span class="text-red-500">MQTT Error: ${err ? err.message : 'Unknown Network Error'}</span>`);
+            console.error('MQTT Connection Error:', err);
+        });
+
+        client.on('close', () => {
+            statusEl.innerText = 'WSS: Disconnected';
+            statusEl.className = 'text-xs text-yellow-500 font-mono mt-2';
+            appendLog('<span class="text-yellow-500">Connection Closed. Attempting reconnect...</span>');
+        });
+
+        client.on('offline', () => {
+            appendLog('<span class="text-yellow-500">Client Offline.</span>');
+        });
+
+        client.on('message', (topic, message) => {
+            try {
+                const payloadStr = message.toString();
+                appendLog(`RCV [${topic.split('/').pop()}]: ${payloadStr}`);
+
+                const data = JSON.parse(payloadStr);
+                const segments = topic.split('/');
+                const deviceId = segments.length > 3 ? segments[3] : 'Unknown Device';
+
+                // Attempt to parse standard fields (PM2.5, PM10, Temp, Humid)
+                // Dustboy usually has pm25, pm10, temp, humid
+                const pm25 = extractValue(data, ['pm25', 'pm2.5', 'pm_25', 'PM25']);
+                const pm10 = extractValue(data, ['pm10', 'pm_10', 'PM10']);
+                const temp = extractValue(data, ['temp', 'temperature', 't']);
+                const humid = extractValue(data, ['humid', 'humidity', 'rh', 'h']);
+
+                if (pm25 !== null) {
+                    document.getElementById('val-pm25').innerText = Number(pm25).toFixed(1);
+                    document.getElementById('card-pm25-device').innerText = `Source ID: ${deviceId}`;
+                    setPMColor('val-pm25', Number(pm25));
+
+                    // Update Chart
+                    const now = new Date();
+                    const timeLabel = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+                    mainChart.data.labels.push(timeLabel);
+                    mainChart.data.datasets[0].data.push(Number(pm25));
+
+                    if (mainChart.data.labels.length > maxDataPoints) {
+                        mainChart.data.labels.shift();
+                        mainChart.data.datasets[0].data.shift();
+                    }
+                    mainChart.update('none'); // Update without full animation for smoother feel
+                }
+
+                if (pm10 !== null) {
+                    document.getElementById('val-pm10').innerText = Number(pm10).toFixed(1);
+                    document.getElementById('card-pm10-device').innerText = `Source ID: ${deviceId}`;
+                    setPMColor('val-pm10', Number(pm10));
+                }
+
+                if (temp !== null) {
+                    document.getElementById('val-temp').innerText = `${Number(temp).toFixed(1)}°C`;
+                }
+                if (humid !== null) {
+                    document.getElementById('val-humid').innerText = `${Number(humid).toFixed(1)}%`;
+                }
+
+            } catch (e) {
+                appendLog(`<span class="text-red-400">Failed to parse JSON target.</span>`);
+            }
+        });
+    </script>
+</body>
+
+</html>

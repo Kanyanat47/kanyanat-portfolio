@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LALISA MANOBAL - Resume / Curriculum Vitae</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d0d0d;
+            --surface: #1a1a1a;
+            --text-main: #f2f2f2;
+            --text-muted: #a0a0a0;
+            --pink-accent: #ff2a85;
+            --pink-light: #ff7ab8;
+            --border-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--surface);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-top: 5px solid var(--pink-accent);
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--pink-accent);
+            margin-right: 2rem;
+        }
+
+        .header-text h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .header-text h2 {
+            font-size: 1.2rem;
+            color: var(--pink-light);
+            font-weight: 400;
+            margin-bottom: 0.8rem;
+        }
+
+        .contact-info {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .contact-info span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        section {
+            margin-bottom: 2.5rem;
+        }
+
+        section h3 {
+            font-size: 1.5rem;
+            color: var(--pink-accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .experience-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .company-name {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .job-date {
+            font-size: 0.9rem;
+            color: var(--pink-light);
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        ul li::before {
+            content: "•";
+            color: var(--pink-accent);
+            font-weight: bold;
+            display: inline-block;
+            width: 1.5rem;
+            margin-left: -1.5rem;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .skill-category h4 {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: rgba(255, 42, 133, 0.1);
+            color: var(--pink-light);
+            border: 1px solid var(--pink-accent);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0.2rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-pic {
+                margin-right: 0;
+                margin-bottom: 1.5rem;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <img src="./lisa-custom.jpg" alt="Lalisa Manobal" class="profile-pic">
+            <div class="header-text">
+                <h1>LALISA MANOBAL</h1>
+                <h2>Global Icon, CEO & Performer</h2>
+                <div class="contact-info">
+                    <span>📍 Seoul, KR / Bangkok, TH</span>
+                    <span>🌐 lloud.co</span>
+                    <span>📧 contact@lloud.co</span>
+                </div>
+            </div>
+        </header>
+
+        <section>
+            <h3>Professional Summary</h3>
+            <p style="color: var(--text-muted);">
+                A visionary global artist, performer, and entrepreneur born in Thailand. Record-breaking solo artist (9
+                Guinness World Records) and CEO of LLOUD Co. Instrumental in bridging international cultural gaps and
+                acting as a Soft Power ambassador for Thailand. Renowned for unparalleled stage presence, multilingual
+                fluency, and influential high-fashion partnerships.
+            </p>
+        </section>
+
+        <section>
+            <h3>Experience</h3>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div class="job-title">Founder & CEO <span class="company-name">| LLOUD Co. (in partnership with RCA
+                            Records)</span></div>
+                    <div class="job-date">Feb 2024 - Present</div>
+                </div>
+                <ul>
+                    <li>Established independent management company to direct creative vision and global strategy.</li>
+                    <li>Secured landmark partnership with RCA Records, retaining 100% ownership of master recordings.
+                    </li>
+                    <li>Led creative direction and launched highly successful "Alter Ego" era (2025).</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div class="job-title">Global Ambassador & Philanthropist <span class="company-name">| Various
+                            Organizations</span></div>
+                    <div class="job-date">2021 - Present</div>
+                </div>
+                <ul>
+                    <li>Appointed "Amazing Thailand Ambassador" (2026), projecting target tourism revenue of $88.5B.
+                    </li>
+                    <li>House Ambassador for Louis Vuitton (2024) and Global Ambassador for Bulgari.</li>
+                    <li>Organized "Welcome to Lisa's Closet" charity event, funding water projects in Niger.</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div class="job-title">Main Dancer & Lead Rapper <span class="company-name">| BLACKPINK (YG
+                            Ent.)</span></div>
+                    <div class="job-date">Aug 2016 - Present</div>
+                </div>
+                <ul>
+                    <li>First foreign trainee in YG Entertainment history.</li>
+                    <li>Anchored historic Coachella headline performance.</li>
+                    <li>Drove sold-out "Deadline World Tour" (2025-2026).</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div class="job-title">Actress <span class="company-name">| HBO / Netflix</span></div>
+                    <div class="job-date">2024 - Present</div>
+                </div>
+                <ul>
+                    <li>Debuted as "Mook" in HBO's <em>The White Lotus</em> (Season 3), driving 1.37M views for the
+                        finale.</li>
+                    <li>Cast in upcoming (2026) Netflix action film <em>Tygo</em>.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h3>Core Competencies & Skills</h3>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <h4>Languages</h4>
+                    <div>
+                        <span class="badge">Thai (Native)</span>
+                        <span class="badge">Korean (Fluent)</span>
+                        <span class="badge">English (Fluent)</span>
+                        <span class="badge">Japanese (Conversational)</span>
+                        <span class="badge">Chinese (Conversational)</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <h4>Industry Expertise</h4>
+                    <div>
+                        <span class="badge">Creative Direction</span>
+                        <span class="badge">Brand Strategy & Marketing</span>
+                        <span class="badge">Performance & Choreography</span>
+                        <span class="badge">Acting</span>
+                        <span class="badge">Business Negotiation</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Key Achievements & Awards</h3>
+            <ul>
+                <li>First solo K-pop artist to surpass 1 Billion streams on Spotify.</li>
+                <li>MTV Video Music Awards (VMAs) & Europe Music Awards (EMAs) - Best K-pop.</li>
+                <li>9 Guinness World Records (including Most Followed K-pop Artist on Instagram).</li>
+                <li>Received "Watthana Kunathorn" award from the Ministry of Culture, Thailand.</li>
+                <li>Golden Globe Presenter (2026).</li>
+            </ul>
+        </section>
+    </div>
+
+</body>
+
+</html>
