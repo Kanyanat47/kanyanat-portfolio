@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIBCHAIN L1 Sensor Dashboard</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Viem UMD Build -->
+    <script src="https://unpkg.com/viem@1.21.4/_cjs/index.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Toggle Buttons */
+        .toggle-btn {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .toggle-btn.active-blue {
+            background-color: #Eff6ff;
+            color: #1d4ed8;
+            border-color: #3b82f6;
+        }
+
+        .toggle-btn.active-green {
+            background-color: #ecfdf5;
+            color: #047857;
+            border-color: #10b981;
+        }
+
+        .toggle-btn-inactive {
+            background-color: #f9fafb;
+            color: #6b7280;
+            border-color: #d1d5db;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .truncate-address {
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: bottom;
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Main Card -->
+        <div class="bg-white rounded-xl card-shadow overflow-hidden">
+
+            <!-- Header Section -->
+            <div class="p-6 md:p-8 border-b border-gray-100">
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <h1 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Latest Sensor Data
+                        </h1>
+                        <h2 id="storeNickName" class="text-3xl font-bold text-gray-900 mb-1">Loading Store...</h2>
+                        <p id="storeDesc" class="text-gray-600 text-lg">Initializing connection...</p>
+                    </div>
+
+                    <div class="mt-4 md:mt-0 text-left md:text-right">
+                        <select id="storeSelector"
+                            class="bg-white border border-gray-300 text-gray-700 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block p-2 mb-3 shadow-sm w-full md:w-auto">
+                            <option value="0xCd3Ec17ddFDa24f8F97131fa0FDf20e7cbd1A8Bb">FloodBoy001 Server</option>
+                            <option value="0x0994Bc66b2863f8D58C8185b1ed6147895632812">FloodBoy016 Node</option>
+                        </select>
+                        <a id="storeLink" href="#" target="_blank"
+                            class="inline-flex items-center text-blue-600 hover:text-blue-800 font-mono text-sm">
+                            <i class="fas fa-external-link-alt mr-1"></i> <span id="storeAddress"
+                                class="truncate-address">0x...</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center mt-6 gap-6 text-sm">
+                    <div class="flex items-center text-gray-700">
+                        <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                        <span id="currentBlock" class="font-medium">Current Block: Syncing...</span>
+                    </div>
+                    <div class="flex items-center text-gray-600">
+                        <i class="far fa-clock mr-2 text-gray-400"></i>
+                        <span id="lastUpdated">Last Updated: --</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Loading Overlay within Card -->
+            <div id="loadingOverlay" class="p-16 text-center">
+                <div class="loader mx-auto mb-4"></div>
+                <p class="text-gray-500 font-medium">Fetching data from JIBCHAIN L1...</p>
+            </div>
+
+            <!-- Main Content Area -->
+            <div id="mainContent" class="hidden">
+
+                <!-- Controls Bar -->
+                <div
+                    class="bg-gray-50 px-6 md:px-8 py-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4">
+                    <div class="flex space-x-2">
+                        <button
+                            class="px-3 py-1.5 bg-white border border-blue-600 text-blue-600 text-sm font-medium rounded-md shadow-sm"><i
+                                class="fas fa-chart-line mr-1"></i> Charts</button>
+                        <button
+                            class="px-3 py-1.5 bg-gray-100 border border-gray-300 text-gray-600 text-sm font-medium rounded-md hover:bg-white"><i
+                                class="fas fa-table mr-1"></i> Table View</button>
+                    </div>
+
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <label for="intervalSelect" class="font-medium">Group by:</label>
+                        <select id="intervalSelect" class="border border-gray-300 rounded p-1">
+                            <option value="30">30 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="360">6 hours</option>
+                            <option value="1440">24 hours</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="p-6 md:p-8 border-b border-gray-100">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                        <h3 id="chartTitle" class="text-xl font-bold text-gray-800">Water Depth Over Time</h3>
+
+                        <!-- Toggle Controls -->
+                        <div class="flex space-x-2 mt-3 sm:mt-0 p-1 bg-gray-100 rounded-lg border border-gray-200">
+                            <div id="btnWater"
+                                class="toggle-btn active-blue px-4 py-2 text-sm font-medium rounded-md border"
+                                onclick="switchChart('waterDepth')">
+                                Water Depth
+                            </div>
+                            <div id="btnBattery"
+                                class="toggle-btn toggle-btn-inactive px-4 py-2 text-sm font-medium rounded-md border"
+                                onclick="switchChart('batteryVoltage')">
+                                Battery Voltage
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative h-[400px] w-full">
+                        <canvas id="telemetryChart"></canvas>
+
+                        <div id="chartNoData"
+                            class="absolute inset-0 flex items-center justify-center hidden bg-white/90 backdrop-blur-sm">
+                            <p class="text-gray-500 font-medium"><i
+                                    class="fas fa-exclamation-circle text-orange-500 mr-2"></i>No historical data
+                                available for this range</p>
+                        </div>
+
+                        <div id="chartLoading"
+                            class="absolute inset-0 flex flex-col items-center justify-center bg-white/90">
+                            <div class="loader mb-3"></div>
+                            <p class="text-gray-500 text-sm">Loading historical events...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table Section -->
+                <div class="p-6 md:p-8">
+                    <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 text-gray-700 font-semibold border-b border-gray-200">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4">Metric</th>
+                                    <th scope="col" class="px-6 py-4">Current</th>
+                                    <th scope="col" class="px-6 py-4">Min</th>
+                                    <th scope="col" class="px-6 py-4">Max</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody" class="divide-y divide-gray-200">
+                                <!-- Rows injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Section -->
+            <div class="bg-gray-50 p-6 border-t border-gray-200 text-xs text-gray-500 grid md:grid-cols-4 gap-4">
+                <div>
+                    <span class="block font-semibold text-gray-700 mb-1">Last Updated:</span>
+                    <span id="footerUpdated">--</span>
+                </div>
+                <div>
+                    <span class="block font-semibold text-gray-700 mb-1">Store Owner:</span>
+                    <a id="metaOwner" href="#" target="_blank"
+                        class="text-blue-600 hover:underline truncate-address block">0x...</a>
+                </div>
+                <div>
+                    <span class="block font-semibold text-gray-700 mb-1">Deployed Block:</span>
+                    <a id="metaBlock" href="#" target="_blank" class="text-blue-600 hover:underline">#--</a>
+                </div>
+                <div>
+                    <span class="block font-semibold text-gray-700 mb-1">Sensor Count:</span>
+                    <span id="metaSensors">-- authorized sensor</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script type="module">
+        import { createPublicClient, http, parseAbiItem } from 'https://esm.sh/viem@1.21.4';
+        import { FactoryABI, StoreABI } from './abis.js';
+
+        // --- Config ---
+        const jibchain = {
+            id: 8899,
+            name: 'JIBCHAIN',
+            network: 'jibchain-l1',
+            nativeCurrency: { name: 'JBC', symbol: 'JBC', decimals: 18 },
+            rpcUrls: { default: { http: ['https://rpc-l1.jibchain.net'] } },
+            blockExplorers: { default: { name: 'JIBCHAIN Explorer', url: 'https://exp.jibchain.net' } }
+        };
+
+        const client = createPublicClient({ chain: jibchain, transport: http() });
+
+        const FACTORY_ADDRESS = '0x63bB41b79b5aAc6e98C7b35Dcb0fE941b85Ba5Bb';
+        const UNIVERSAL_SIGNER = '0xcB0e58b011924e049ce4b4D62298Edf43dFF0BDd';
+
+        let currentStore = document.getElementById('storeSelector').value;
+        let chartInstance = null;
+        let historicalData = [];
+        let groupedData = [];
+        let configIndexes = { water: -1, battery: -1 };
+        let currentDateMs = 0;
+        let activeChartMode = 'waterDepth';
+
+        // --- Core Processors ---
+
+        function formatFieldName(fieldName) {
+            return fieldName
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
+
+        // Apply strict math according to prompt rules
+        function processValue(value, unit) {
+            const numValue = Number(value);
+            const baseUnit = unit.replace(/ x\d+/, '');
+
+            if (unit.includes('x10000')) {
+                return (numValue / 10000).toFixed(4) + ' ' + baseUnit;
+            }
+            if (unit.includes('x1000')) {
+                return (numValue / 1000).toFixed(3) + ' ' + baseUnit;
+            }
+            if (unit.includes('x100')) {
+                return (numValue / 100).toFixed(3) + ' ' + baseUnit;
+            }
+            return numValue.toString() + ' ' + unit;
+        }
+
+        function getRawScaledValue(value, unit) {
+            const numValue = Number(value);
+            if (unit.includes('x10000')) return numValue / 10000;
+            if (unit.includes('x1000')) return numValue / 1000;
+            if (unit.includes('x100')) return numValue / 100;
+            return numValue;
+        }
+
+        // Grouping & Smoothing
+        function groupDataByInterval(data, intervalMinutes) {
+            if (data.length === 0) return [];
+
+            const intervalMs = intervalMinutes * 60 * 1000;
+            const grouped = [];
+
+            let currentGroupStart = Math.floor(data[0].timestamp / intervalMs) * intervalMs;
+            let currentGroupWater = [];
+            let currentGroupBattery = [];
+
+            data.forEach(point => {
+                const pointGroupStart = Math.floor(point.timestamp / intervalMs) * intervalMs;
+
+                if (pointGroupStart > currentGroupStart) {
+                    // Push previous group
+                    if (currentGroupWater.length > 0 || currentGroupBattery.length > 0) {
+                        grouped.push({
+                            timestamp: currentGroupStart + (intervalMs / 2), // Center of interval
+                            waterDepth: currentGroupWater.length > 0 ? currentGroupWater.reduce((a, b) => a + b, 0) / currentGroupWater.length : null,
+                            batteryVoltage: currentGroupBattery.length > 0 ? currentGroupBattery.reduce((a, b) => a + b, 0) / currentGroupBattery.length : null,
+                            sampleCount: Math.max(currentGroupWater.length, currentGroupBattery.length)
+                        });
+                    }
+                    // Reset
+                    currentGroupStart = pointGroupStart;
+                    currentGroupWater = [];
+                    currentGroupBattery = [];
+                }
+
+                if (point.waterDepth !== null) currentGroupWater.push(point.waterDepth);
+                if (point.batteryVoltage !== null) currentGroupBattery.push(point.batteryVoltage);
+            });
+
+            // Push final group
+            if (currentGroupWater.length > 0 || currentGroupBattery.length > 0) {
+                grouped.push({
+                    timestamp: currentGroupStart + (intervalMs / 2),
+                    waterDepth: currentGroupWater.length > 0 ? currentGroupWater.reduce((a, b) => a + b, 0) / currentGroupWater.length : null,
+                    batteryVoltage: currentGroupBattery.length > 0 ? currentGroupBattery.reduce((a, b) => a + b, 0) / currentGroupBattery.length : null,
+                    sampleCount: Math.max(currentGroupWater.length, currentGroupBattery.length)
+                });
+            }
+            return grouped;
+        }
+
+        function applySmoothing(data, key, windowSize = 3) {
+            return data.map((point, index, array) => {
+                if (point[key] === null) return point;
+                let sum = 0, count = 0;
+                const halfWindow = Math.floor(windowSize / 2);
+                for (let i = Math.max(0, index - halfWindow); i <= Math.min(array.length - 1, index + halfWindow); i++) {
+                    if (array[i][key] !== null) { sum += array[i][key]; count++; }
+                }
+                return { ...point, [key + 'Smoothed']: count > 0 ? sum / count : point[key] };
+            });
+        }
+
+
+        // --- UI Updaters ---
+
+        async function initDashboard(targetStore) {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('chartLoading').classList.remove('hidden');
+
+            try {
+                const currentBlock = await client.getBlockNumber();
+                document.getElementById('currentBlock').innerText = `Current Block: ${currentBlock}`;
+
+                const [nickname, owner, sensorCount, deployedBlock, description] = await client.readContract({
+                    address: FACTORY_ADDRESS,
+                    abi: FactoryABI,
+                    functionName: 'getStoreInfo',
+                    args: [targetStore]
+                });
+
+                document.getElementById('storeNickName').innerText = nickname;
+                document.getElementById('storeDesc').innerText = description;
+                document.getElementById('storeAddress').innerText = targetStore;
+                const explorerLink = `https://exp.jibchain.net/address/${targetStore}`;
+                document.getElementById('storeLink').href = explorerLink;
+
+                document.getElementById('metaOwner').innerText = owner;
+                document.getElementById('metaOwner').href = `https://exp.jibchain.net/address/${owner}`;
+                document.getElementById('metaBlock').innerText = `#${deployedBlock}`;
+                document.getElementById('metaBlock').href = `https://exp.jibchain.net/block/${deployedBlock}`;
+                document.getElementById('metaSensors').innerText = `${sensorCount} authorized sensor${sensorCount > 1 ? 's' : ''}`;
+
+                const fields = await client.readContract({
+                    address: targetStore,
+                    abi: StoreABI,
+                    functionName: 'getAllFields'
+                });
+
+                const [timestamp, values] = await client.readContract({
+                    address: targetStore,
+                    abi: StoreABI,
+                    functionName: 'getLatestRecord',
+                    args: [UNIVERSAL_SIGNER]
+                });
+
+                const date = new Date(Number(timestamp) * 1000);
+                const localeString = `${date.toLocaleDateString()}, ${date.toLocaleTimeString()}`;
+                document.getElementById('lastUpdated').innerText = `Last Updated: ${localeString}`;
+                document.getElementById('footerUpdated').innerText = localeString;
+
+                // Build Table Body First (Will update with real Min/Max after fetching history)
+                const tbody = document.getElementById('dataTableBody');
+                tbody.innerHTML = '';
+
+                // Track indexes for charting
+                configIndexes.water = fields.findIndex(f => f.name.toLowerCase() === 'water_depth' || f.name.toLowerCase().includes('water'));
+                configIndexes.battery = fields.findIndex(f => f.name.toLowerCase() === 'battery_voltage' || f.name.toLowerCase().includes('battery'));
+
+                // Fetch History (~24 hours / 28800 blocks)
+                const fromBlock = currentBlock - BigInt(28800);
+                let events = [];
+                try {
+                    events = await client.getContractEvents({
+                        address: targetStore,
+                        abi: StoreABI,
+                        eventName: 'RecordStored',
+                        fromBlock: fromBlock > 0n ? fromBlock : 0n,
+                        toBlock: 'latest',
+                        args: { sensor: UNIVERSAL_SIGNER }
+                    });
+                } catch (e) {
+                    console.error("Events fetch failed:", e);
+                }
+
+                historicalData = events.map(ev => {
+                    const parsedTs = Number(ev.args.timestamp) * 1000;
+                    return {
+                        timestamp: parsedTs,
+                        rawValues: ev.args.values,
+                        waterDepth: configIndexes.water >= 0 ? getRawScaledValue(ev.args.values[configIndexes.water], fields[configIndexes.water].unit) : null,
+                        batteryVoltage: configIndexes.battery >= 0 ? getRawScaledValue(ev.args.values[configIndexes.battery], fields[configIndexes.battery].unit) : null
+                    };
+                }).sort((a, b) => a.timestamp - b.timestamp);
+
+                // Re-draw Table with true Min/Max/Counts
+                fields.forEach((field, index) => {
+                    if (field.name.toLowerCase().includes('min') || field.name.toLowerCase().includes('max') || field.name.toLowerCase().includes('count')) return;
+
+                    const formattedCurrent = processValue(values[index], field.unit);
+
+                    let minRaw = Number(values[index]);
+                    let maxRaw = Number(values[index]);
+                    let sampleCount = historicalData.length > 0 ? historicalData.length : 0; // Using total valid events as sample proxy
+
+                    if (historicalData.length > 0) {
+                        const allFieldVals = historicalData.map(d => Number(d.rawValues[index]));
+                        minRaw = Math.min(...allFieldVals);
+                        maxRaw = Math.max(...allFieldVals);
+                    }
+
+                    const formattedMin = processValue(BigInt(minRaw), field.unit);
+                    const formattedMax = processValue(BigInt(maxRaw), field.unit);
+
+                    let displayLabel = formatFieldName(field.name);
+                    // Append count format strictly if Water Depth
+                    if (displayLabel === 'Water Depth' && sampleCount > 0) {
+                        displayLabel = `Water Depth (${sampleCount} samples)`;
+                    }
+
+                    const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+
+                    const tr = document.createElement('tr');
+                    tr.className = `${bgClass} hover:bg-gray-100 transition-colors`;
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">${displayLabel}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-700">${formattedCurrent}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${formattedMin}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${formattedMax}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                document.getElementById('chartLoading').classList.add('hidden');
+
+                // Initial Chart Render
+                processAndRenderChart();
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loadingOverlay').innerHTML = `<p class="text-red-500 font-bold">Error: ${error.message}</p>`;
+            }
+        }
+
+        // --- Charting ---
+        function processAndRenderChart() {
+            const interval = parseInt(document.getElementById('intervalSelect').value);
+            groupedData = groupDataByInterval(historicalData, interval);
+            groupedData = applySmoothing(groupedData, 'waterDepth', 3);
+            groupedData = applySmoothing(groupedData, 'batteryVoltage', 3);
+
+            window.switchChart(activeChartMode); // Render current state
+        }
+
+        window.switchChart = function (metric) {
+            activeChartMode = metric;
+            const btnW = document.getElementById('btnWater');
+            const btnB = document.getElementById('btnBattery');
+
+            if (metric === 'waterDepth') {
+                btnW.className = 'toggle-btn active-blue px-4 py-2 text-sm font-medium rounded-md border';
+                btnB.className = 'toggle-btn toggle-btn-inactive px-4 py-2 text-sm font-medium rounded-md border';
+                document.getElementById('chartTitle').innerText = 'Water Depth Over Time';
+                renderChart(groupedData.map(d => d.timestamp), groupedData.map(d => d.waterDepthSmoothed), 'Water Depth (m)', '#3B82F6', 'rgba(59, 130, 246, 0.1)');
+            } else {
+                btnB.className = 'toggle-btn active-green px-4 py-2 text-sm font-medium rounded-md border';
+                btnW.className = 'toggle-btn toggle-btn-inactive px-4 py-2 text-sm font-medium rounded-md border';
+                document.getElementById('chartTitle').innerText = 'Battery Voltage Over Time';
+                renderChart(groupedData.map(d => d.timestamp), groupedData.map(d => d.batteryVoltageSmoothed), 'Battery Voltage (V)', '#10B981', 'rgba(16, 185, 129, 0.1)');
+            }
+        }
+
+        function renderChart(labelsMs, data, labelText, borderColor, bgColor) {
+            const ctx = document.getElementById('telemetryChart').getContext('2d');
+
+            if (groupedData.length === 0) {
+                document.getElementById('chartNoData').classList.remove('hidden');
+                if (chartInstance) chartInstance.destroy();
+                return;
+            } else {
+                document.getElementById('chartNoData').classList.add('hidden');
+            }
+
+            if (chartInstance) chartInstance.destroy();
+
+            const formattedLabels = labelsMs.map(ms => {
+                const d = new Date(ms);
+                return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+            });
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: formattedLabels,
+                    datasets: [{
+                        label: labelText,
+                        data: data,
+                        borderColor: borderColor,
+                        backgroundColor: bgColor,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: borderColor,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { padding: 10 }
+                    },
+                    scales: {
+                        x: { grid: { borderDash: [2, 4], color: '#e5e7eb' }, ticks: { color: '#6b7280' } },
+                        y: { grid: { borderDash: [2, 4], color: '#e5e7eb' }, ticks: { color: '#6b7280' } }
+                    }
+                }
+            });
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('storeSelector').addEventListener('change', (e) => { initDashboard(e.target.value); });
+        document.getElementById('intervalSelect').addEventListener('change', () => { processAndRenderChart(); });
+
+        initDashboard(currentStore);
+
+    </script>
+</body>
+
+</html>

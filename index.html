@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanyanat Suwan - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+
+<body class="antialiased min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+
+    <main class="max-w-4xl mx-auto space-y-12">
+
+        <!-- Header Section -->
+        <header class="text-center space-y-4 animate-fade-in-up">
+            <div class="inline-block p-2 rounded-full bg-blue-50 mb-4">
+                <img src="https://ui-avatars.com/api/?name=Kanyanat+Suwan&background=e0e7ff&color=4338ca&size=128"
+                    alt="Profile" class="w-24 h-24 rounded-full shadow-sm">
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight">
+                Hi, I'm <span class="gradient-text">Kanyanat Suwan</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                Student at <span class="font-semibold text-slate-800">Rajabhat Pibulsongkram University</span>.
+                Passionate about Web Development, IoT, and exploring Blockchain technologies.
+            </p>
+
+            <div class="flex justify-center gap-4 pt-4">
+                <a href="#" class="text-slate-400 hover:text-slate-900 transition-colors">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="#" class="text-slate-400 hover:text-blue-600 transition-colors">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                <a href="mailto:contact@example.com" class="text-slate-400 hover:text-rose-500 transition-colors">
+                    <i class="fas fa-envelope text-2xl"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- divider -->
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+
+        <!-- Projects Section -->
+        <section>
+            <div class="flex items-center gap-3 mb-8">
+                <i class="fas fa-rocket text-blue-500 text-xl"></i>
+                <h2 class="text-2xl font-bold text-slate-800">Featured Projects</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Project 1: The New JIBCHAIN Webapp -->
+                <a href="jibchain_webapp/index.html" class="block group">
+                    <article
+                        class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm card-hover h-full flex flex-col relative overflow-hidden">
+                        <!-- BG Decoration -->
+                        <div
+                            class="absolute -right-12 -top-12 w-32 h-32 bg-blue-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500">
+                        </div>
+
+                        <div class="flex items-start justify-between mb-4 relative z-10">
+                            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                                <i class="fas fa-link text-xl"></i>
+                            </div>
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                Latest Work
+                            </span>
+                        </div>
+
+                        <h3
+                            class="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors relative z-10">
+                            JIBCHAIN L1 Sensor Dashboard
+                        </h3>
+
+                        <p class="text-slate-600 text-sm mb-6 flex-grow relative z-10">
+                            A Sci-Fi inspired Web3 application built with Viem.js and Chart.js.
+                            It connects directly to the JIBCHAIN network to fetch and visualize real-time
+                            environmental sensor data (Water Depth & Battery Voltage) from Smart Contracts.
+                        </p>
+
+                        <div class="flex flex-wrap gap-2 relative z-10 text-xs font-medium text-slate-500">
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">Viem.js</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">Web3</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">Blockchain</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">Tailwind</span>
+                        </div>
+                    </article>
+                </a>
+
+                <!-- Project 2: Lisa CV -->
+                <a href="lisa-cv-master/index.html" class="block group">
+                    <article
+                        class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm card-hover h-full flex flex-col">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="p-3 bg-rose-50 text-rose-600 rounded-xl">
+                                <i class="fas fa-user-circle text-xl"></i>
+                            </div>
+                        </div>
+
+                        <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-rose-600 transition-colors">
+                            Lisa BLACKPINK Interactive CV
+                        </h3>
+
+                        <p class="text-slate-600 text-sm mb-6 flex-grow">
+                            A highly interactive and stylish digital resume recreating the vibe of Lisa from BLACKPINK.
+                            Features slick animations and modern web design principles.
+                        </p>
+
+                        <div class="flex flex-wrap gap-2 text-xs font-medium text-slate-500">
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">HTML5</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">CSS3 Animations</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">JS</span>
+                        </div>
+                    </article>
+                </a>
+
+                <!-- Project 3: DustBoy Holographic Dashboard -->
+                <a href="dustboy-holographic-dashboard-master/index.html" class="block group">
+                    <article
+                        class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm card-hover h-full flex flex-col">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="p-3 bg-purple-50 text-purple-600 rounded-xl">
+                                <i class="fas fa-wind text-xl"></i>
+                            </div>
+                        </div>
+
+                        <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-purple-600 transition-colors">
+                            DustBoy Holographic Dashboard
+                        </h3>
+
+                        <p class="text-slate-600 text-sm mb-6 flex-grow">
+                            A next-gen Sci-Fi 3D holographic dashboard visualizing live IoT air quality (PM2.5) data
+                            from DustBoy sensors using MQTT, Vanta.js, and Chart.js.
+                        </p>
+
+                        <div class="flex flex-wrap gap-2 text-xs font-medium text-slate-500">
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">MQTT</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">Vanta.js</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">IoT</span>
+                        </div>
+                    </article>
+                </a>
+
+                <!-- Project 4: Travel Map -->
+                <a href="https://kanyanat47.github.io/travel-map/" target="_blank" class="block group">
+                    <article
+                        class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm card-hover h-full flex flex-col">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                                <i class="fas fa-globe-asia text-xl"></i>
+                            </div>
+                        </div>
+
+                        <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-amber-600 transition-colors">
+                            3D Interactive Travel Map
+                        </h3>
+
+                        <p class="text-slate-600 text-sm mb-6 flex-grow">
+                            An immersive 3D globe visualization plotting travel destinations and landmarks using Mapbox
+                            GL and dynamic geographic data rendering.
+                        </p>
+
+                        <div class="flex flex-wrap gap-2 text-xs font-medium text-slate-500">
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">Mapbox GL</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">GeoJSON</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded-md">3D Mapping</span>
+                        </div>
+                    </article>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center pt-12 pb-6 text-slate-500 text-sm">
+            <p>&copy; 2026 Kanyanat Suwan. Built with passion.</p>
+        </footer>
+
+    </main>
+
+</body>
+
+</html>
